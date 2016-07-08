@@ -4,14 +4,14 @@
 	xsi:schemaLocation="http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
 				http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
-	<context:component-scan base-package="com.omniprimeinc.componets.id" />
+	<context:component-scan base-package="com.redis.id.generator.client" />
 
-	<context:property-placeholder location="file:id-generator-client.properties"
+	<context:property-placeholder location="classpath:id-generator-client.properties"
 		ignore-unresolvable="true" />
 
 	<bean id="idGeneratorService" class="com.baidu.jprotobuf.pbrpc.spring.RpcProxyFactoryBean">
 		<property name="serviceInterface"
-			value="com.omniprimeinc.componets.id.redis.IdGeneratorService" />
+			value="com.redis.id.generator.client.IdGeneratorService" />
 		<property name="host" value="${server.host}" />
 		<property name="port" value="${server.port}" />
 		<property name="connectTimeout" value="${client.connectTimeout}" />
@@ -21,7 +21,7 @@
 		<property name="maxWait" value="${client.maxWait}" />
 	</bean>
 	
-	<bean id="idGeneratorProvider" class="com.omniprimeinc.componets.id.redis.impl.IdGeneratorProviderImpl">
+	<bean id="idGeneratorProvider" class="com.redis.id.generator.client.impl.IdGeneratorProviderImpl">
 		<property name="retry" value="${client.retry}"/>
 	</bean>
 </beans>

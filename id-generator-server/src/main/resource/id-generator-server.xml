@@ -25,12 +25,13 @@
 		 	</set>
 		 </constructor-arg>
 		 <constructor-arg index="2" ref="jedisPoolConfig"/>
-		 <constructor-arg index="3" value="${redis.timeout}"/>
-		 <constructor-arg index="4" value="${redis.password}"/>
 	</bean>
 
 	<bean id="idGeneratorService" class="com.redis.id.generator.server.impl.IdGeneratorServiceImpl">
 		<property name="jedisSentinelPool" ref="jedisSentinelPool" />
+		<property name="key" value="${redis.key}" />
+		<property name="step" value="${redis.step}" />
+		<property name="sha" value="${redis.sha}" />
 	</bean>
 	
 	<bean class="com.baidu.jprotobuf.pbrpc.spring.RpcServiceExporter">

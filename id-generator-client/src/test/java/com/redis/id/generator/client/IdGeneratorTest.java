@@ -22,7 +22,7 @@ public class IdGeneratorTest {
 	public void testNextId(){
 		try {
 			long start = System.currentTimeMillis();
-			int threadCount = 100000;
+			int threadCount = 1;
 			final CountDownLatch latch = new CountDownLatch(threadCount);
 			for (int i = 0; i < threadCount; ++i) {
 				Thread thread = new Thread() {

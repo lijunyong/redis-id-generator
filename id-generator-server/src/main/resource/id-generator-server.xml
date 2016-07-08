@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+				http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+	
+	<context:component-scan base-package="com.redis.id.generator.server"/>
+	
+	<context:property-placeholder location="classpath:id-generator-server.properties" ignore-unresolvable="true" />
+
+	<bean id="jedisPoolConfig" class="redis.clients.jedis.JedisPoolConfig">
+		<property name="maxTotal" value="${redis.maxTotal}" />
+		<property name="maxIdle" value="${redis.maxIdle}" />
+		<property name="maxWaitMillis" value="${redis.maxWaitMillis}" />
+		<property name="testOnBorrow" value="${redis.testOnBorrow}" />
+		<property name="testOnReturn" value="${redis.testOnReturn}" />
+	</bean>
+
+	<bean id="jedisSentinelPool" class="redis.clients.jedis.JedisSentinelPool">
+		 <constructor-arg index="0" value="${redis.masterName}"/>
+		 <constructor-arg index="1">
+		 	<set>
+		 		<value>${redis.[1].sentinel}</value>
+		 	</set>
+		 </constructor-arg>
+		 <constructor-arg index="2" ref="jedisPoolConfig"/>
+		 <constructor-arg index="3" value="${redis.timeout}"/>
+		 <constructor-arg index="4" value="${redis.password}"/>
+	</bean>
+
+	<bean id="idGeneratorService" class="com.redis.id.generator.server.impl.IdGeneratorServiceImpl">
+		<property name="jedisSentinelPool" ref="jedisSentinelPool" />
+	</bean>
+	
+	<bean class="com.baidu.jprotobuf.pbrpc.spring.RpcServiceExporter">
+		<property name="host" value="${rpc.host}"/>
+		<property name="servicePort" value="${rpc.port}"/>
+		<property name="registerServices">
+			<list>
+				<ref bean="idGeneratorService" />
+			</list>
+		</property>
+		<property name="workThreads" value="${rpc.workThreads}" />
+		<property name="acceptorThreads" value="${rpc.acceptorThreads}" />
+		<property name="taskTheads" value="${rpc.taskTheads}" />
+		<property name="connectTimeout" value="${rpc.connectTimeout}" />
+		<property name="keepAlive" value="${rpc.keepAlive}" />
+		<property name="keepAliveTime" value="${rpc.keepAliveTime}"/>
+	</bean>
+</beans>

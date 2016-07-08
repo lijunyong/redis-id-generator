@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+				http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+	<context:component-scan base-package="com.omniprimeinc.componets.id" />
+
+	<context:property-placeholder location="file:id-generator-client.properties"
+		ignore-unresolvable="true" />
+
+	<bean id="idGeneratorService" class="com.baidu.jprotobuf.pbrpc.spring.RpcProxyFactoryBean">
+		<property name="serviceInterface"
+			value="com.omniprimeinc.componets.id.redis.IdGeneratorService" />
+		<property name="host" value="${server.host}" />
+		<property name="port" value="${server.port}" />
+		<property name="connectTimeout" value="${client.connectTimeout}" />
+		<property name="keepAlive" value="${client.keepAlive}" />
+		<property name="testOnBorrow" value="${client.testOnBorrow}" />
+		<property name="testOnReturn" value="${client.testOnReturn}" />
+		<property name="maxWait" value="${client.maxWait}" />
+	</bean>
+	
+	<bean id="idGeneratorProvider" class="com.omniprimeinc.componets.id.redis.impl.IdGeneratorProviderImpl">
+		<property name="retry" value="${client.retry}"/>
+	</bean>
+</beans>

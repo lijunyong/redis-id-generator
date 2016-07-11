@@ -29,7 +29,7 @@ redis多实例部署3个节点，则节点1返回的seq是：
 
 下载id-genertaor.lua,并把它load到redis master上。
 ```bash
-./redis-cli script load "$(cat id-genertaor.lua)" 
+./redis-cli script load "$(cat id-generator.lua)" 
 ```
 
 获取lua脚本的sha1值,可能是：

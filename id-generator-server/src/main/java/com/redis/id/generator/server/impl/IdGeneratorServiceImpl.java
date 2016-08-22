@@ -10,17 +10,17 @@ import org.slf4j.LoggerFactory;
 
 import com.baidu.jprotobuf.pbrpc.ProtobufRPCService;
 import com.redis.id.generator.server.IdGeneratorService;
+import com.redis.id.generator.server.loadbalance.JedisSentinelLoadBalance;
 import com.redis.id.generator.server.model.ID;
 import com.redis.id.generator.server.utils.DateUtil;
 
 import redis.clients.jedis.Jedis;
-import redis.clients.jedis.JedisSentinelPool;
 
 public class IdGeneratorServiceImpl implements IdGeneratorService{
 	
 	private static final Logger logger = LoggerFactory.getLogger(IdGeneratorServiceImpl.class);
 	
-	private JedisSentinelPool jedisSentinelPool;
+	private JedisSentinelLoadBalance jedisSentinelLoadBalance;
 	
 	private String key;
 	
@@ -33,7 +33,7 @@ public class IdGeneratorServiceImpl implements IdGeneratorService{
 		Jedis jedis = null;
 		StringBuffer buf = new StringBuffer();
 		try{
-			jedis = jedisSentinelPool.getResource();
+			jedis = jedisSentinelLoadBalance.getJedis();
 			List<String> result = (List<String>)jedis.evalsha(sha, 1, key, step);
 			Date date = new Date(Long.parseLong(result.get(0))*1000+Long.parseLong(result.get(1)));
 			buf.append(DateUtil.formatDate(date, DateUtil.DATE_FMT_YMDHMSSSSS));
@@ -48,15 +48,18 @@ public class IdGeneratorServiceImpl implements IdGeneratorService{
 		return new ID(buf.toString());
 	}
 
-	public JedisSentinelPool getJedisSentinelPool() {
-		return jedisSentinelPool;
-	}
 
-	public void setJedisSentinelPool(JedisSentinelPool jedisSentinelPool) {
-		this.jedisSentinelPool = jedisSentinelPool;
-	}
+    public JedisSentinelLoadBalance getJedisSentinelLoadBalance() {
+        return jedisSentinelLoadBalance;
+    }
 
-	public String getKey() {
+
+
+    public void setJedisSentinelLoadBalance(JedisSentinelLoadBalance jedisSentinelLoadBalance) {
+        this.jedisSentinelLoadBalance = jedisSentinelLoadBalance;
+    }
+
+    public String getKey() {
 		return key;
 	}
 

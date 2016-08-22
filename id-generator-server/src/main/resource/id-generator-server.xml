@@ -17,18 +17,45 @@
 		<property name="testOnReturn" value="${redis.testOnReturn}" />
 	</bean>
 
-	<bean id="jedisSentinelPool" class="redis.clients.jedis.JedisSentinelPool">
-		 <constructor-arg index="0" value="${redis.masterName}"/>
+	<bean id="jedisSentinelPoolFirst" class="redis.clients.jedis.JedisSentinelPool">
+		 <constructor-arg index="0" value="${redis.[1].masterName}"/>
 		 <constructor-arg index="1">
 		 	<set>
-		 		<value>${redis.[1].sentinel}</value>
+		 		<value>${redis.[1].sentinel.[1]}</value>
 		 	</set>
 		 </constructor-arg>
 		 <constructor-arg index="2" ref="jedisPoolConfig"/>
 	</bean>
+	
+	<bean id="jedisSentinelLoadBalance"
+		class="com.redis.id.generator.server.loadbalance.JedisSentinelLoadBalance">
+		<property name="jedisSentinelPoolList">
+			<list>
+				<bean class="redis.clients.jedis.JedisSentinelPool">
+					 <constructor-arg index="0" value="${redis.[1].masterName}"/>
+					 <constructor-arg index="1">
+					 	<set>
+					 		<value>${redis.[1].sentinel.[1]}</value>
+					 	</set>
+					 </constructor-arg>
+					 <constructor-arg index="2" ref="jedisPoolConfig"/>
+				</bean>
+				<bean class="redis.clients.jedis.JedisSentinelPool">
+					 <constructor-arg index="0" value="${redis.[2].masterName}"/>
+					 <constructor-arg index="1">
+					 	<set>
+					 		<value>${redis.[2].sentinel.[1]}</value>
+					 	</set>
+					 </constructor-arg>
+					 <constructor-arg index="2" ref="jedisPoolConfig"/>
+				</bean>
+			</list>
+		</property>
+		<property name="loadbalance" value="${redis.loadbalance}" />
+	</bean>
 
 	<bean id="idGeneratorService" class="com.redis.id.generator.server.impl.IdGeneratorServiceImpl">
-		<property name="jedisSentinelPool" ref="jedisSentinelPool" />
+		<property name="jedisSentinelLoadBalance" ref="jedisSentinelLoadBalance"/>
 		<property name="key" value="${redis.key}" />
 		<property name="step" value="${redis.step}" />
 		<property name="sha" value="${redis.sha}" />
